@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nightbell — the line that never goes to voicemail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14171F;
+    --ink-2:#1D212B;
+    --ink-3:#272C38;
+    --paper:#F2EDE3;
+    --paper-dim:#C9C4B7;
+    --amber:#D9A441;
+    --amber-soft:#E8C280;
+    --signal:#C1443B;
+    --line:rgba(242,237,227,0.12);
+    --radius:14px;
+    --display:'Bricolage Grotesque', system-ui, sans-serif;
+    --body:'Work Sans', system-ui, sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+  a{color:inherit;}
+  img,svg{display:block;}
+  :focus-visible{outline:2px solid var(--amber); outline-offset:3px; border-radius:4px;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(20,23,31,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:18px 28px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--display); font-weight:700; font-size:1.15rem; letter-spacing:-0.01em;}
+  .brand .bell{width:22px; height:22px; flex:none;}
+  .nav-links{display:flex; align-items:center; gap:32px; font-size:0.92rem; color:var(--paper-dim);}
+  .nav-links a{text-decoration:none; transition:color .2s;}
+  .nav-links a:hover{color:var(--paper);}
+  .nav-cta{
+    font-family:var(--body); font-weight:600; font-size:0.88rem;
+    background:var(--amber); color:var(--ink); border:none;
+    padding:10px 18px; border-radius:999px; cursor:pointer;
+    transition:transform .15s ease, background .2s;
+  }
+  .nav-cta:hover{background:var(--amber-soft); transform:translateY(-1px);}
+  @media (max-width:760px){ .nav-links{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:88px 0 60px;
+    position:relative;
+  }
+  .hero-grid{
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;
+  }
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr; gap:48px;} }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--amber-soft); border:1px solid var(--line); padding:6px 12px; border-radius:999px;
+    margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--amber); box-shadow:0 0 0 4px rgba(217,164,65,0.18);}
+
+  h1.headline{
+    font-family:var(--display); font-weight:700; font-size:clamp(2.4rem, 4.6vw, 3.7rem);
+    line-height:1.04; letter-spacing:-0.02em; margin:0 0 22px;
+  }
+  h1.headline em{
+    font-style:normal; color:var(--amber);
+    background:linear-gradient(180deg, transparent 62%, rgba(217,164,65,0.28) 62%);
+  }
+  .sub{
+    font-size:1.08rem; line-height:1.55; color:var(--paper-dim); max-width:46ch; margin:0 0 34px;
+  }
+  .hero-ctas{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .btn-primary{
+    font-family:var(--body); font-weight:600; font-size:0.95rem;
+    background:var(--amber); color:var(--ink); border:none;
+    padding:14px 24px; border-radius:999px; cursor:pointer;
+    transition:transform .15s ease, background .2s;
+  }
+  .btn-primary:hover{background:var(--amber-soft); transform:translateY(-1px);}
+  .btn-ghost{
+    font-family:var(--body); font-weight:600; font-size:0.95rem;
+    background:transparent; color:var(--paper); border:1px solid var(--line);
+    padding:13px 22px; border-radius:999px; cursor:pointer; text-decoration:none;
+    transition:border-color .2s, background .2s;
+  }
+  .btn-ghost:hover{border-color:var(--paper-dim); background:rgba(242,237,227,0.05);}
+
+  .hero-note{
+    margin-top:20px; font-size:0.82rem; color:var(--paper-dim); font-family:var(--mono);
+  }
+
+  /* ---------- PHONE DEMO ---------- */
+  .phone-stage{ display:flex; justify-content:center; }
+  .phone{
+    width:290px; background:var(--ink-2); border:1px solid var(--line);
+    border-radius:34px; padding:14px; box-shadow:0 30px 80px -20px rgba(0,0,0,0.6);
+    position:relative;
+  }
+  .phone-notch{ width:70px; height:6px; background:var(--ink-3); border-radius:99px; margin:0 auto 12px; }
+  .phone-screen{
+    background:linear-gradient(180deg, #0F1218, #171B24);
+    border-radius:22px; height:490px; overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .phone-topbar{
+    padding:14px 16px 10px; font-family:var(--mono); font-size:0.68rem; color:var(--paper-dim);
+    display:flex; justify-content:space-between; border-bottom:1px solid var(--line);
+  }
+  .thread{ flex:1; padding:14px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+
+  .call-banner{
+    background:rgba(193,68,59,0.14); border:1px solid rgba(193,68,59,0.4);
+    color:#F0B4AE; border-radius:12px; padding:10px 12px; font-family:var(--mono); font-size:0.72rem;
+    opacity:0; transform:translateY(-6px);
+    animation:showHide 9s ease-in-out infinite;
+    animation-delay:0s;
+  }
+  .call-banner b{color:#F7D7D3;}
+
+  .bubble{
+    max-width:82%; padding:10px 13px; border-radius:14px; font-size:0.82rem; line-height:1.4;
+    opacity:0; transform:translateY(8px);
+  }
+  .bubble.from{
+    align-self:flex-start; background:var(--ink-3); color:var(--paper);
+    border-bottom-left-radius:4px;
+    animation:riseIn 9s ease-in-out infinite;
+  }
+  .bubble.to{
+    align-self:flex-end; background:var(--amber); color:var(--ink); font-weight:500;
+    border-bottom-right-radius:4px;
+    animation:riseIn 9s ease-in-out infinite;
+  }
+  .bubble.confirm{
+    align-self:flex-start; background:rgba(217,164,65,0.14); color:var(--amber-soft);
+    border:1px solid rgba(217,164,65,0.35); border-bottom-left-radius:4px;
+    animation:riseIn 9s ease-in-out infinite;
+  }
+  .b1{animation-delay:1.6s;}
+  .b2{animation-delay:3.4s;}
+  .b3{animation-delay:5.2s;}
+
+  @keyframes showHide{
+    0%{opacity:0; transform:translateY(-6px);}
+    6%{opacity:1; transform:translateY(0);}
+    85%{opacity:1; transform:translateY(0);}
+    92%{opacity:0; transform:translateY(-6px);}
+    100%{opacity:0;}
+  }
+  @keyframes riseIn{
+    0%{opacity:0; transform:translateY(8px);}
+    14%{opacity:1; transform:translateY(0);}
+    88%{opacity:1; transform:translateY(0);}
+    96%{opacity:0;}
+    100%{opacity:0;}
+  }
+
+  /* ---------- CLAIM STRIP ---------- */
+  .strip{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:34px 0;
+  }
+  .strip-row{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;
+  }
+  @media (max-width:760px){ .strip-row{grid-template-columns:1fr; gap:18px;} }
+  .strip-item{ display:flex; align-items:baseline; gap:10px; }
+  .strip-item .mark{ font-family:var(--mono); color:var(--amber); font-size:0.85rem; }
+  .strip-item p{ margin:0; color:var(--paper-dim); font-size:0.95rem; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .section{ padding:96px 0; }
+  .section-head{ max-width:56ch; margin-bottom:56px; }
+  .kicker{
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--amber-soft); margin-bottom:14px; display:block;
+  }
+  h2{
+    font-family:var(--display); font-weight:700; font-size:clamp(1.7rem, 3vw, 2.4rem);
+    letter-spacing:-0.01em; margin:0 0 12px; line-height:1.15;
+  }
+  .section-head p{ color:var(--paper-dim); font-size:1.02rem; line-height:1.55; margin:0; }
+
+  .steps{ display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  @media (max-width:820px){ .steps{grid-template-columns:1fr;} }
+  .step{ background:var(--ink-2); padding:34px 30px; }
+  .step .num{ font-family:var(--mono); color:var(--amber); font-size:0.85rem; display:block; margin-bottom:18px; }
+  .step h3{ font-family:var(--display); font-size:1.2rem; font-weight:700; margin:0 0 10px; }
+  .step p{ color:var(--paper-dim); font-size:0.92rem; line-height:1.5; margin:0; }
+
+  /* ---------- BUILT FOR YOUR SHOP ---------- */
+  .shop-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; }
+  @media (max-width:900px){ .shop-grid{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:520px){ .shop-grid{grid-template-columns:1fr;} }
+  .shop-card{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; display:flex; flex-direction:column; gap:14px;
+  }
+  .shop-card .who{ font-family:var(--display); font-weight:700; font-size:1.02rem; }
+  .shop-card .ex{
+    font-family:var(--mono); font-size:0.76rem; line-height:1.6; color:var(--paper-dim);
+    background:var(--ink); border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+  }
+  .shop-card .ex .who-said{ color:var(--amber-soft); }
+  .shop-card .result{ font-size:0.8rem; color:var(--amber); font-family:var(--mono); }
+
+  /* ---------- DASHBOARD ---------- */
+  .dash-wrap{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:20px;
+    padding:8px; box-shadow:0 40px 100px -30px rgba(0,0,0,0.55);
+  }
+  .dash-top{
+    display:flex; align-items:center; gap:8px; padding:12px 14px;
+    font-family:var(--mono); font-size:0.72rem; color:var(--paper-dim);
+  }
+  .dash-dot{ width:9px; height:9px; border-radius:50%; background:var(--ink-3); }
+  .dash-body{ background:var(--ink); border-radius:14px; padding:6px; }
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  thead th{
+    text-align:left; font-family:var(--mono); font-weight:400; font-size:0.7rem;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--paper-dim);
+    padding:12px 14px; border-bottom:1px solid var(--line);
+  }
+  tbody td{ padding:13px 14px; border-bottom:1px solid var(--line); color:var(--paper); }
+  tbody tr:last-child td{ border-bottom:none; }
+  .status{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:0.72rem;
+    padding:4px 10px; border-radius:999px;
+  }
+  .status.replied{ background:rgba(217,164,65,0.14); color:var(--amber-soft); }
+  .status.booked{ background:rgba(122,178,132,0.14); color:#A6D1AC; }
+  .status.reminder{ background:rgba(140,160,220,0.14); color:#B9C6EF; }
+
+  /* ---------- CTA BANNER ---------- */
+  .cta-banner{
+    background:linear-gradient(135deg, #1B1E27, #21160F);
+    border:1px solid var(--line); border-radius:24px;
+    padding:56px 44px; text-align:center; position:relative; overflow:hidden;
+  }
+  .cta-banner::before{
+    content:""; position:absolute; inset:-40% -10% auto -10%; height:220px;
+    background:radial-gradient(closest-side, rgba(217,164,65,0.22), transparent 70%);
+    pointer-events:none;
+  }
+  .cta-banner h2{ margin-bottom:12px; }
+  .cta-banner p{ color:var(--paper-dim); max-width:46ch; margin:0 auto 30px; }
+  .cta-form{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .cta-form input{
+    font-family:var(--body); font-size:0.95rem; background:var(--ink); color:var(--paper);
+    border:1px solid var(--line); border-radius:999px; padding:13px 18px; width:280px; max-width:70vw;
+  }
+  .cta-form input::placeholder{ color:var(--paper-dim); }
+  .cta-form input:focus{ outline:none; border-color:var(--amber); }
+  .cta-status{ margin-top:16px; font-family:var(--mono); font-size:0.82rem; color:var(--amber-soft); min-height:1.2em; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ border-top:1px solid var(--line); padding:34px 0 44px; }
+  .foot-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .foot-brand{ display:flex; align-items:center; gap:8px; font-family:var(--display); font-weight:700; }
+  .foot-brand .bell{ width:16px; height:16px; }
+  footer .fine{ color:var(--paper-dim); font-size:0.82rem; font-family:var(--mono); }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-row wrap">
+    <div class="brand">
+      <svg class="bell" viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.3 0-6 2.7-6 6v3.2c0 .6-.2 1.2-.6 1.7L4 16.5c-.6.8 0 2 1 2h14c1 0 1.6-1.2 1-2l-1.4-2.6c-.4-.5-.6-1.1-.6-1.7V9c0-3.3-2.7-6-6-6Z" stroke="#D9A441" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 20a2.5 2.5 0 0 0 5 0" stroke="#D9A441" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Nightbell
+    </div>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#shops">For your shop</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#start">Pricing</a>
+    </nav>
+    <button class="nav-cta" onclick="document.getElementById('start').scrollIntoView()">Get started</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> AI front desk for local shops</span>
+      <h1 class="headline">Even with the<br>lights off, <em>someone<br>answers.</em></h1>
+      <p class="sub">Nightbell picks up every call your shop misses, texts the customer back in your voice, and gets them booked — before they try the place next door.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="document.getElementById('start').scrollIntoView()">Get started free</button>
+        <a class="btn-ghost" href="#how">See how it works</a>
+      </div>
+      <p class="hero-note">No app for your customers. No hold music. Just texts.</p>
+    </div>
+
+    <div class="phone-stage">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-topbar"><span>Maple Street Cafe</span><span>9:41 PM</span></div>
+          <div class="thread">
+            <div class="call-banner">📞 <b>Missed call</b> from (555) 018-2938</div>
+            <div class="bubble from b1">Hey! Sorry we missed you — this is Maple Street Cafe. Want to place an order or book a table?</div>
+            <div class="bubble to b2">Table for 2 tonight at 7?</div>
+            <div class="bubble confirm b3">You're booked — 7:00 PM, table for 2. See you tonight 🎉</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="strip">
+  <div class="wrap strip-row">
+    <div class="strip-item"><span class="mark">→</span><p>Replies in under 10 seconds, day or night</p></div>
+    <div class="strip-item"><span class="mark">→</span><p>Answers in your shop's own words, not a script</p></div>
+    <div class="strip-item"><span class="mark">→</span><p>Nothing for your customers to download</p></div>
+  </div>
+</div>
+
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">How it works</span>
+      <h2>Three steps, one line.</h2>
+      <p>Nightbell sits behind your existing phone number. It only ever picks up the calls you don't.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">01</span>
+        <h3>A call comes in</h3>
+        <p>Someone rings your shop. If you're with a customer, mid-shift, or closed for the night, Nightbell catches it instead of voicemail.</p>
+      </div>
+      <div class="step">
+        <span class="num">02</span>
+        <h3>Nightbell texts back</h3>
+        <p>Within seconds, the caller gets a text — written in your shop's tone, knowing your hours, your menu or services, and what you'd actually say.</p>
+      </div>
+      <div class="step">
+        <span class="num">03</span>
+        <h3>They get handled</h3>
+        <p>Booked, reminded, or answered — the conversation ends with the customer taken care of, and a note waiting for you in the morning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="shops">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Built for your shop</span>
+      <h2>Same idea, different counter.</h2>
+      <p>Nightbell learns the questions your customers actually ask — because they're not the same for a cafe as they are for a dental office.</p>
+    </div>
+    <div class="shop-grid">
+      <div class="shop-card">
+        <span class="who">Cafe</span>
+        <div class="ex"><span class="who-said">Customer:</span> "table for 2 tonight?"</div>
+        <span class="result">→ booked in 8 sec</span>
+      </div>
+      <div class="shop-card">
+        <span class="who">Salon</span>
+        <div class="ex"><span class="who-said">Customer:</span> "can I get a color appt friday?"</div>
+        <span class="result">→ booked in 11 sec</span>
+      </div>
+      <div class="shop-card">
+        <span class="who">Auto shop</span>
+        <div class="ex"><span class="who-said">Customer:</span> "is my car ready?"</div>
+        <span class="result">→ status sent instantly</span>
+      </div>
+      <div class="shop-card">
+        <span class="who">Dental office</span>
+        <div class="ex"><span class="who-said">Nightbell:</span> "reminder: cleaning tmrw 2pm"</div>
+        <span class="result">→ sent automatically</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="dashboard">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Every morning</span>
+      <h2>One list. Nothing falls through.</h2>
+      <p>Every missed call lands in a single log, so you can see exactly what Nightbell handled overnight.</p>
+    </div>
+    <div class="dash-wrap">
+      <div class="dash-top"><span class="dash-dot"></span><span class="dash-dot"></span><span class="dash-dot"></span>&nbsp; Nightbell — overnight log</div>
+      <div class="dash-body">
+        <table>
+          <thead><tr><th>Caller</th><th>Time</th><th>What happened</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>(555) 018-2938</td><td>9:41 PM</td><td>Asked about a table for tonight</td><td><span class="status booked">Booked</span></td></tr>
+            <tr><td>(555) 044-1170</td><td>10:03 PM</td><td>Asked about Saturday hours</td><td><span class="status replied">Replied</span></td></tr>
+            <tr><td>(555) 092-6642</td><td>7:15 AM</td><td>Cleaning appointment tomorrow</td><td><span class="status reminder">Reminder sent</span></td></tr>
+            <tr><td>(555) 011-8820</td><td>7:52 AM</td><td>Asked if car was ready</td><td><span class="status replied">Replied</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="start">
+  <div class="wrap">
+    <div class="cta-banner">
+      <h2>Open your line tonight.</h2>
+      <p>Give Nightbell your number and it starts catching the calls you'd otherwise lose — before the shop even opens tomorrow.</p>
+      <div class="cta-form">
+        <input id="email-input" type="email" placeholder="you@yourshop.com" aria-label="Email address" />
+        <button class="btn-primary" onclick="joinList()">Join the waitlist</button>
+      </div>
+      <div class="cta-status" id="cta-status"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div class="foot-brand">
+      <svg class="bell" viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.3 0-6 2.7-6 6v3.2c0 .6-.2 1.2-.6 1.7L4 16.5c-.6.8 0 2 1 2h14c1 0 1.6-1.2 1-2l-1.4-2.6c-.4-.5-.6-1.1-.6-1.7V9c0-3.3-2.7-6-6-6Z" stroke="#D9A441" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 20a2.5 2.5 0 0 0 5 0" stroke="#D9A441" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Nightbell
+    </div>
+    <span class="fine">the line that never goes to voicemail</span>
+  </div>
+</footer>
+
+<script>
+  function joinList(){
+    var input = document.getElementById('email-input');
+    var status = document.getElementById('cta-status');
+    var val = input.value.trim();
+    var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    if(!valid){
+      status.textContent = "Enter a working email so we know where to send it.";
+      status.style.color = '#E19187';
+      return;
+    }
+    status.style.color = '';
+    status.textContent = "You're on the list — we'll text you when Nightbell is ready for " + val;
+    input.value = '';
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Set up Nightbell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14171F; --ink-2:#1D212B; --ink-3:#272C38;
+    --paper:#F2EDE3; --paper-dim:#9A96A3;
+    --amber:#D9A441; --amber-soft:#E8C280;
+    --good:#7AB284; --line:rgba(242,237,227,0.12);
+    --radius:14px;
+    --display:'Bricolage Grotesque', system-ui, sans-serif;
+    --body:'Work Sans', system-ui, sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--ink); color:var(--paper);
+    font-family:var(--body); -webkit-font-smoothing:antialiased;
+    display:flex; align-items:flex-start; justify-content:center; padding:56px 20px 80px;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
+  :focus-visible{outline:2px solid var(--amber); outline-offset:2px; border-radius:6px;}
+
+  .app{ width:100%; max-width:620px; }
+
+  .brand{ display:flex; align-items:center; gap:9px; font-family:var(--display); font-weight:700; font-size:1.05rem; margin-bottom:38px; }
+  .brand svg{ width:20px; height:20px; }
+
+  .progress{ display:flex; gap:6px; margin-bottom:34px; }
+  .progress .seg{ flex:1; height:3px; border-radius:99px; background:var(--ink-3); overflow:hidden; }
+  .progress .seg i{ display:block; height:100%; width:0%; background:var(--amber); transition:width .4s ease; }
+
+  .step-label{ font-family:var(--mono); font-size:0.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--amber-soft); margin-bottom:10px; }
+  h1{ font-family:var(--display); font-weight:700; font-size:clamp(1.5rem,3.4vw,1.9rem); letter-spacing:-0.01em; margin:0 0 8px; }
+  .step-sub{ color:var(--paper-dim); font-size:0.95rem; line-height:1.5; margin:0 0 32px; max-width:52ch; }
+
+  .card{ background:var(--ink-2); border:1px solid var(--line); border-radius:20px; padding:32px; }
+
+  label{ display:block; font-size:0.84rem; color:var(--paper-dim); margin-bottom:7px; font-family:var(--body); }
+  .field{ margin-bottom:20px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:520px){ .row2{grid-template-columns:1fr;} }
+
+  input[type=text], input[type=email], input[type=tel], textarea, select{
+    width:100%; background:var(--ink); border:1px solid var(--line); color:var(--paper);
+    font-family:var(--body); font-size:0.95rem; padding:12px 14px; border-radius:10px;
+  }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--amber); }
+  textarea{ resize:vertical; min-height:84px; font-family:var(--body); }
+  ::placeholder{ color:var(--paper-dim); opacity:0.7; }
+
+  .hours-row{ display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .hours-row:last-child{ border-bottom:none; }
+  .hours-row .day{ width:100px; font-size:0.88rem; color:var(--paper); flex:none; }
+  .hours-row input[type=time]{ background:var(--ink); border:1px solid var(--line); color:var(--paper); border-radius:8px; padding:7px 9px; font-family:var(--mono); font-size:0.82rem; }
+  .hours-row .to{ color:var(--paper-dim); font-family:var(--mono); font-size:0.8rem; }
+  .hours-row .closed-toggle{ margin-left:auto; display:flex; align-items:center; gap:6px; font-size:0.78rem; color:var(--paper-dim); font-family:var(--mono); }
+
+  .option{
+    display:flex; align-items:flex-start; gap:14px; padding:16px; border:1px solid var(--line);
+    border-radius:12px; margin-bottom:12px; cursor:pointer; transition:border-color .2s, background .2s;
+  }
+  .option:hover{ border-color:var(--paper-dim); }
+  .option.checked{ border-color:var(--amber); background:rgba(217,164,65,0.07); }
+  .option input{ margin-top:3px; accent-color:var(--amber); width:16px; height:16px; flex:none; }
+  .option .otxt strong{ display:block; font-size:0.94rem; margin-bottom:3px; }
+  .option .otxt span{ font-size:0.82rem; color:var(--paper-dim); line-height:1.4; }
+
+  .preview-box{
+    background:var(--ink); border:1px solid var(--line); border-radius:12px; padding:16px;
+    font-family:var(--mono); font-size:0.8rem; line-height:1.7; color:var(--paper-dim); margin-top:6px;
+  }
+  .preview-box b{ color:var(--amber-soft); }
+
+  .review-row{ display:flex; justify-content:space-between; gap:20px; padding:12px 0; border-bottom:1px solid var(--line); font-size:0.9rem; }
+  .review-row:last-child{ border-bottom:none; }
+  .review-row .k{ color:var(--paper-dim); }
+  .review-row .v{ text-align:right; }
+  .edit-link{ background:none; border:none; color:var(--amber-soft); font-family:var(--mono); font-size:0.72rem; cursor:pointer; padding:0; margin-left:10px; }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:28px; }
+  .btn-primary{
+    font-family:var(--body); font-weight:600; font-size:0.94rem; background:var(--amber); color:var(--ink);
+    border:none; padding:13px 24px; border-radius:999px; cursor:pointer; transition:transform .15s, background .2s;
+  }
+  .btn-primary:hover{ background:var(--amber-soft); transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+  .btn-back{
+    font-family:var(--body); font-weight:600; font-size:0.9rem; background:none; color:var(--paper-dim);
+    border:none; cursor:pointer; padding:10px 6px;
+  }
+  .btn-back:hover{ color:var(--paper); }
+  .btn-back:disabled{ visibility:hidden; }
+
+  .done{ text-align:center; padding:20px 0 6px; }
+  .done .ring{
+    width:64px; height:64px; border-radius:50%; background:rgba(122,178,132,0.12); border:1px solid rgba(122,178,132,0.4);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 22px;
+  }
+  .done p.big{ font-family:var(--display); font-weight:700; font-size:1.3rem; margin:0 0 10px; }
+  .done p.small{ color:var(--paper-dim); font-size:0.92rem; max-width:40ch; margin:0 auto; line-height:1.5; }
+
+  .step-view{ display:none; }
+  .step-view.active{ display:block; animation:fadeUp .35s ease; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.3 0-6 2.7-6 6v3.2c0 .6-.2 1.2-.6 1.7L4 16.5c-.6.8 0 2 1 2h14c1 0 1.6-1.2 1-2l-1.4-2.6c-.4-.5-.6-1.1-.6-1.7V9c0-3.3-2.7-6-6-6Z" stroke="#D9A441" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 20a2.5 2.5 0 0 0 5 0" stroke="#D9A441" stroke-width="1.6" stroke-linecap="round"/></svg>
+    Nightbell setup
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <form id="wizard" onsubmit="return false;">
+
+    <!-- STEP 1 -->
+    <div class="step-view active" data-step="0">
+      <span class="step-label">Step 1 of 4</span>
+      <h1>Tell us about your shop</h1>
+      <p class="step-sub">This is what Nightbell will introduce itself as when it texts your customers back.</p>
+      <div class="card">
+        <div class="field">
+          <label for="bizname">Business name</label>
+          <input type="text" id="bizname" placeholder="Maple Street Cafe" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="biztype">Business type</label>
+            <select id="biztype">
+              <option value="">Choose one</option>
+              <option>Cafe / restaurant</option>
+              <option>Salon / spa</option>
+              <option>Auto shop</option>
+              <option>Dental / medical office</option>
+              <option>Other local service</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="phone">Shop phone number</label>
+            <input type="tel" id="phone" placeholder="(555) 018-2938" />
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="tone">How should Nightbell sound?</label>
+          <input type="text" id="tone" placeholder="Friendly and casual, like a regular texting a friend" />
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-view" data-step="1">
+      <span class="step-label">Step 2 of 4</span>
+      <h1>When are you open?</h1>
+      <p class="step-sub">Nightbell only steps in for calls you miss — it uses these hours to know when that is.</p>
+      <div class="card" id="hours-card"></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-view" data-step="2">
+      <span class="step-label">Step 3 of 4</span>
+      <h1>What should Nightbell handle?</h1>
+      <p class="step-sub">Pick everything that applies. You can turn these on or off later.</p>
+      <div class="card" id="handle-card">
+        <label class="option" data-name="missed">
+          <input type="checkbox" checked />
+          <span class="otxt"><strong>Missed-call follow-up</strong><span>Text anyone whose call wasn't answered, right away.</span></span>
+        </label>
+        <label class="option" data-name="booking">
+          <input type="checkbox" checked />
+          <span class="otxt"><strong>Booking requests</strong><span>Let customers book a table, appointment, or slot over text.</span></span>
+        </label>
+        <label class="option" data-name="reminders">
+          <input type="checkbox" />
+          <span class="otxt"><strong>Appointment reminders</strong><span>Send a reminder text the day before, automatically.</span></span>
+        </label>
+        <label class="option" data-name="hours" style="margin-bottom:0;">
+          <input type="checkbox" />
+          <span class="otxt"><strong>Hours &amp; general questions</strong><span>Answer basic questions about hours, location, and pricing.</span></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-view" data-step="3">
+      <span class="step-label">Step 4 of 4</span>
+      <h1>Review &amp; open your line</h1>
+      <p class="step-sub">Here's what Nightbell will do. You can change any of this after launch.</p>
+      <div class="card">
+        <div id="review"></div>
+        <div class="preview-box" id="preview"></div>
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div class="step-view" data-step="4">
+      <div class="card done">
+        <div class="ring">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#7AB284" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="big">Your line is open.</p>
+        <p class="small" id="done-text">Nightbell is now watching for missed calls. The first one it catches will show up in your dashboard.</p>
+      </div>
+    </div>
+
+    <div class="nav-row" id="nav-row">
+      <button type="button" class="btn-back" id="backBtn" onclick="go(-1)">Back</button>
+      <button type="button" class="btn-primary" id="nextBtn" onclick="go(1)">Continue</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  var step = 0;
+  var totalSteps = 5; // includes done screen
+  var days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  // build progress segments (4 real steps)
+  var progressEl = document.getElementById('progress');
+  for(var i=0;i<4;i++){
+    var seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = '<i></i>';
+    progressEl.appendChild(seg);
+  }
+
+  // build hours card
+  var hoursCard = document.getElementById('hours-card');
+  days.forEach(function(day, idx){
+    var row = document.createElement('div');
+    row.className = 'hours-row';
+    var isWeekend = day === 'Sat' || day === 'Sun';
+    row.innerHTML =
+      '<span class="day">'+day+'</span>' +
+      '<input type="time" class="open-time" value="'+(isWeekend ? '10:00':'08:00')+'" />' +
+      '<span class="to">to</span>' +
+      '<input type="time" class="close-time" value="'+(isWeekend ? '15:00':'18:00')+'" />' +
+      '<label class="closed-toggle"><input type="checkbox" class="closed-check" '+(day==='Sun' ? 'checked':'')+' /> Closed</label>';
+    hoursCard.appendChild(row);
+  });
+
+  // checkbox card visual state
+  document.querySelectorAll('.option').forEach(function(opt){
+    var box = opt.querySelector('input');
+    function sync(){ opt.classList.toggle('checked', box.checked); }
+    box.addEventListener('change', sync);
+    sync();
+  });
+
+  function updateProgress(){
+    var segs = progressEl.querySelectorAll('.seg i');
+    var activeStep = Math.min(step, 4);
+    segs.forEach(function(s, i){
+      s.style.width = (i < activeStep) ? '100%' : (i === activeStep ? '50%' : '0%');
+    });
+  }
+
+  function buildReview(){
+    var name = document.getElementById('bizname').value || 'Your shop';
+    var type = document.getElementById('biztype').value || 'Local business';
+    var phone = document.getElementById('phone').value || '(not set)';
+    var tone = document.getElementById('tone').value || 'Friendly and casual';
+
+    var closedDays = [];
+    document.querySelectorAll('.hours-row').forEach(function(row){
+      if(row.querySelector('.closed-check').checked){
+        closedDays.push(row.querySelector('.day').textContent);
+      }
+    });
+
+    var handling = [];
+    document.querySelectorAll('.option').forEach(function(opt){
+      if(opt.querySelector('input').checked){
+        handling.push(opt.querySelector('strong').textContent);
+      }
+    });
+
+    var review = document.getElementById('review');
+    review.innerHTML =
+      '<div class="review-row"><span class="k">Business</span><span class="v">'+name+' — '+type+'</span></div>' +
+      '<div class="review-row"><span class="k">Phone</span><span class="v">'+phone+'</span></div>' +
+      '<div class="review-row"><span class="k">Voice</span><span class="v">'+tone+'</span></div>' +
+      '<div class="review-row"><span class="k">Closed</span><span class="v">'+(closedDays.length ? closedDays.join(', ') : 'Open every day')+'</span></div>' +
+      '<div class="review-row"><span class="k">Handling</span><span class="v">'+(handling.length ? handling.join(', ') : 'Nothing selected yet')+'</span></div>';
+
+    var preview = document.getElementById('preview');
+    preview.innerHTML = 'Preview text Nightbell would send —<br><br><b>'+name+':</b> "Hey! Sorry we missed you — this is '+name+'. '+
+      (handling.indexOf('Booking requests') > -1 ? 'Want to book a spot, or is there something else I can help with?' : 'How can I help?') + '"';
+
+    document.getElementById('done-text').textContent =
+      'Nightbell is now watching '+phone+' for missed calls, texting back as '+name+'.';
+  }
+
+  function go(dir){
+    var next = step + dir;
+    if(next < 0 || next > totalSteps - 1) return;
+
+    if(dir === 1 && step === 3){ buildReview(); }
+
+    document.querySelector('.step-view.active').classList.remove('active');
+    step = next;
+    document.querySelector('.step-view[data-step="'+step+'"]').classList.add('active');
+    updateProgress();
+
+    var nextBtn = document.getElementById('nextBtn');
+    var backBtn = document.getElementById('backBtn');
+    var navRow = document.getElementById('nav-row');
+
+    backBtn.disabled = (step === 0 || step === 4);
+    if(step === 3){ nextBtn.textContent = 'Open my line'; }
+    else if(step === 4){ navRow.style.display = 'none'; }
+    else{ nextBtn.textContent = 'Continue'; }
+
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
